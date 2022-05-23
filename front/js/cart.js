@@ -143,7 +143,6 @@ function deleteItem(item) {
   const itemToDelete = localCart.findIndex(
     (product) => product.id === item.id && product.color == item.color
     )
-  console.log("Deleting", itemToDelete)
   deleteConfirm = window.confirm(
         "Etes vous sûr de vouloir supprimer cet article ?"
       );
