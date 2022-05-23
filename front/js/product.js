@@ -9,8 +9,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
     .then((res) => handleData(res))
 
 function handleData(kanap) {
-    articleName = kanap.name
-    img = kanap.imageUrl
+
     makeImage(kanap.imageUrl, kanap.altTxt)
     makeTitle(kanap.name)
     makePrice(kanap.price)
@@ -59,7 +58,7 @@ document.getElementById("addToCart").addEventListener("click", function () {
     }
     let qtt = document.getElementById("quantity").value
     if (qtt < 1 || qtt > 100) {
-        alert('La quantité doit être comprise entre 1 et 99');
+        alert('La quantité doit être comprise entre 1 et 100');
         return;
     }
     
@@ -67,9 +66,7 @@ document.getElementById("addToCart").addEventListener("click", function () {
     let product = {
         'id': id, 
         'color': selectedColor,
-        'qty': parseInt(qtt),
-        'name': articleName,  
-        'imageUrl' : img     
+        'quantity': parseInt(qtt),    
     }
 
     addProductToCart(product);
@@ -86,7 +83,7 @@ function addProductToCart(product){
         let modified = false;
         localCart.forEach(element => {
             if(element.id == product.id && element.color == product.color){
-                element.qty += product.qty;
+                element.quantity += product.quantity;
                 modified = true;
             }
         })
@@ -94,9 +91,11 @@ function addProductToCart(product){
             localCart.push(product);
         }
         localStorage.setItem('cart', JSON.stringify(localCart))
+        alert("Produit ajouté au panier !");
 
     }else{
         localCart.push(product);
         localStorage.setItem('cart', JSON.stringify(localCart))
+        alert("Produit ajouté au panier !");
     }
 }

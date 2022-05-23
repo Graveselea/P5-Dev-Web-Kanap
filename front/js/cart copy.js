@@ -4,14 +4,14 @@ const positionEmptyCart = document.querySelector("#cart__items");
 
 init();
 
-function init(){
+async function init(){
   displayCart();
   displayTotal();
   
 }
 
 // Récupération panier
-function displayCart() {
+async function displayCart() {
   if (localCart === null || localCart.length === 0) {
     const emptyCart = `<p>Votre panier est vide</p>`;
     positionEmptyCart.innerHTML = emptyCart;
@@ -21,17 +21,16 @@ function displayCart() {
     .then((response) => response.json())
     .then((res) => {
       res.color = product.color;
-      res.quantity = product.quantity;
-      res.id = product.id;
+      res.quantity = product.qty;
       displayArticle(res); 
+      displayTotal(res);
     }
   )})  
   }
-  
 }
 
 //Récupération du total
-function displayTotal() {
+async function displayTotal() {
   let quantity = 0;
   let price = 0;
 
@@ -40,17 +39,16 @@ function displayTotal() {
 
     .then((response) => response.json())
     .then((product)=> {
-      quantity += element.quantity;
-      price += product.price * element.quantity;
+      quantity += element.qty;
+      price += product.price * element.qty;
       document.getElementById('totalQuantity').innerHTML = quantity;
       document.getElementById('totalPrice').innerHTML = price;
+      changeQuantity(product);
+      deleteItem(product);
     })
   })
 }
 
-
-  
-  
 // Affichage du contenu du panier
 function displayArticle(item) {
   const blocCartItem = document.getElementById('cart__items');
@@ -107,7 +105,7 @@ function makeDescription(item){
   p.textContent = item.color
 
   const p2 = document.createElement('p')
-  p2.textContent = Number(item.price) + "\u20AC"
+  p2.textContent = Number(item.price) + "€"
 
   description.appendChild(h2)
   description.appendChild(p)
@@ -126,35 +124,6 @@ function makeSettings(item) {
   return settings
 }
 
-//Insertion élément "supprimer"
-function addDeleteToSettings(settings, item) {
-  const div = document.createElement('div')
-  div.classList.add("cart__item__content__settings__delete")
-  div.addEventListener("click", () => deleteItem(item))
-
-  const p = document.createElement('p')
-  p.textContent = "Supprimer"
-  div.appendChild(p)
-  settings.appendChild(div)
-
-}
-//Suppression élément du panier selon Id et color
-function deleteItem(item) {
-  const itemToDelete = localCart.findIndex(
-    (product) => product.id === item.id && product.color == item.color
-    )
-  console.log("Deleting", itemToDelete)
-  deleteConfirm = window.confirm(
-        "Etes vous sûr de vouloir supprimer cet article ?"
-      );
-      if (deleteConfirm == true) {
-        localCart.splice(itemToDelete, 1)
-        localStorage.setItem("cart", JSON.stringify(localCart));
-        location.reload();
-        alert("Article supprimé avec succès");
-      }
-    }
-
 //Insertion quantité dans un "input"
 function addQuantityToSettings(settings, item) {
   const quantity = document.createElement('div')
@@ -169,19 +138,77 @@ function addQuantityToSettings(settings, item) {
   input.min = "1"
   input.max = "100"
   input.value = item.quantity;
-  input.addEventListener('input', () => changeQuantity(item.id, item.color, input.value));
   quantity.appendChild(input)
   settings.appendChild(quantity)
-  
 }
 
-//Modification de la quantité selon color et id
-function changeQuantity(id, color, newValue) {
-  const itemToUdapte = localCart.find((item) => item.id === id && item.color == color)
-  itemToUdapte.quantity = parseInt(newValue)
-  displayTotal()
-  localStorage.setItem('cart', JSON.stringify(localCart))
+//Insertion élément "supprimer"
+function addDeleteToSettings(settings, item) {
+  const div = document.createElement('div')
+  div.classList.add("cart__item__content__settings__delete")
+  div.addEventListener("click", () => deleteItem())
+  const p = document.createElement('p')
+  p.textContent = "Supprimer"
+  div.appendChild(p)
+  settings.appendChild(div)
 }
+
+
+//Modification de la quantité
+function changeQuantity() {
+  const quantityInputs = document.querySelectorAll(".itemQuantity");
+  console.log(quantityInputs)
+       quantityInputs.forEach((quantityInputs) => {
+       quantityInputs.addEventListener("change", (event) => {
+        event.preventDefault();
+        const inputValue = event.target.value - 0;
+        const dataId = event.target.getAttribute("data-id");
+        const dataColor = event.target.getAttribute("data-color");
+        let cartItems = localStorage.getItem("cart");
+        let items = JSON.parse(cartItems);
+  
+        items = items.map((item) => {
+          if (item.id === dataId && item.color === dataColor) {
+            item.quantity = inputValue;
+          }
+          return item;
+        });
+  
+        if (inputValue > 100) {
+          alert('La quantité doit être comprise entre 1 et 100');
+          //location.reload();
+          return;
+        }
+        let itemsStr = JSON.stringify(items);
+        localStorage.setItem("cart", itemsStr);
+        return
+        //location.reload();
+      });
+    });
+  }
+
+
+//Suppression élément du panier selon Id et color
+function deleteItem() {
+  let paraDelete = document.querySelectorAll(".deleteItem");
+console.log(paraDelete)
+  // On créé une boucle pour passer sur tous les bouttons
+  for(let i = 0; i < paraDelete.length; i++){
+      // Evenement sur chaque boutton
+      paraDelete[i].addEventListener("click", () => {
+          // On fait un contre filtre pour récupérer ceux qui ne correspondent pas
+          localCart = localCart.filter(element => element.id != paraDelete[i].id || element.color != paraDelete[i].dataset.color);
+  
+          // On renvoi les données actuelles dans le LS
+          localStorage.setItem('cart', JSON.stringify(localCart))
+  
+          // On reload la page pour avoir l'affichage à jour (la fonction affiche plusieurs fois le panier, et pas à jour)
+          location.reload();
+      });
+  };
+}
+
+
 
 
 //Création form
