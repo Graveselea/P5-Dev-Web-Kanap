@@ -1,3 +1,5 @@
+//-------------------------PANIER---------------------------------//
+
 //Initialisation
 let localCart = JSON.parse(localStorage.getItem("cart"));
 const positionEmptyCart = document.querySelector("#cart__items");
@@ -13,7 +15,7 @@ function init(){
 // Récupération panier
 function displayCart() {
   if (localCart === null || localCart.length === 0) {
-    const emptyCart = `<p>Votre panier est vide</p>`;
+    const emptyCart = `<p>Votre panier est vide</p>`; //Alerte si le panier est vide
     positionEmptyCart.innerHTML = emptyCart;
   }else{
     localCart.forEach((product) =>{
@@ -34,10 +36,8 @@ function displayCart() {
 function displayTotal() {
   let quantity = 0;
   let price = 0;
-
   localCart.forEach(element =>{
     fetch(`http://localhost:3000/api/products/${element.id}`)
-
     .then((response) => response.json())
     .then((product)=> {
       quantity += element.quantity;
@@ -47,25 +47,18 @@ function displayTotal() {
     })
   })
 }
-
-
-  
-  
+ 
 // Affichage du contenu du panier
 function displayArticle(item) {
   const blocCartItem = document.getElementById('cart__items');
-
   let article = document.createElement('article');
   article.classList.add('cart__item');
   article.setAttribute('data-id',item._id);
   article.setAttribute('data-color',item.color);
-
   let divImg = makeImageDiv(item);
   let divContent = makeCartContent(item);
-
   article.appendChild(divImg);
   article.appendChild(divContent)
-  
   blocCartItem.appendChild(article);
 }
 
@@ -73,7 +66,6 @@ function displayArticle(item) {
 function makeImageDiv(item) {
   const div = document.createElement("div")
   div.classList.add("cart__item__img")
-
   const image = document.createElement("img")
   image.src = item.imageUrl
   image.alt = item.altTxt
@@ -85,10 +77,8 @@ function makeImageDiv(item) {
 function makeCartContent(item) {
   const cardItemContent = document.createElement("div")
   cardItemContent.classList.add("cart__item__content")
-
   const description = makeDescription(item)
   const settings = makeSettings(item)
-
   cardItemContent.appendChild(description)
   cardItemContent.appendChild(settings)
   return cardItemContent
@@ -96,31 +86,24 @@ function makeCartContent(item) {
 
 //Création de la description
 function makeDescription(item){
-
   const description = document.createElement('div')
   description.classList.add("cart__item__content__description")
-
   const h2 = document.createElement('h2')
   h2.textContent = item.name
-
   const p = document.createElement('p')
   p.textContent = item.color
-
   const p2 = document.createElement('p')
   p2.textContent = Number(item.price) + "\u20AC"
-
   description.appendChild(h2)
   description.appendChild(p)
   description.appendChild(p2)
   return description
 }
 
-
 //Affichage des settings
 function makeSettings(item) {
   const settings = document.createElement("div")
   settings.classList.add("cart__item__content__settings")
-
   addQuantityToSettings(settings, item)
   addDeleteToSettings(settings, item)
   return settings
@@ -131,13 +114,12 @@ function addDeleteToSettings(settings, item) {
   const div = document.createElement('div')
   div.classList.add("cart__item__content__settings__delete")
   div.addEventListener("click", () => deleteItem(item))
-
   const p = document.createElement('p')
   p.textContent = "Supprimer"
   div.appendChild(p)
   settings.appendChild(div)
-
 }
+
 //Suppression élément du panier selon Id et color
 function deleteItem(item) {
   const itemToDelete = localCart.findIndex(
@@ -171,7 +153,6 @@ function addQuantityToSettings(settings, item) {
   input.addEventListener('input', () => changeQuantity(item.id, item.color, input.value));
   quantity.appendChild(input)
   settings.appendChild(quantity)
-  
 }
 
 //Modification de la quantité selon color et id
@@ -183,7 +164,7 @@ function changeQuantity(id, color, newValue) {
 }
 
 
-//Création form
+//-------------------------FORMULAIRE---------------------------------//
 
 // Variables Regex
 let nameRegex = /^[a-zA-Z\-çñàéèêëïîôüù ]{2,}$/;

@@ -1,15 +1,14 @@
+// Récupération id
 const queryString = window.location.search
 const urlParams = new URLSearchParams(queryString)
 const id = urlParams.get("id")
-
-
 
 fetch(`http://localhost:3000/api/products/${id}`)
     .then((response) => response.json())
     .then((res) => handleData(res))
 
+// Récupération des données
 function handleData(kanap) {
-
     makeImage(kanap.imageUrl, kanap.altTxt)
     makeTitle(kanap.name)
     makePrice(kanap.price)
@@ -17,6 +16,7 @@ function handleData(kanap) {
     makeColors(kanap.colors)
 }
 
+// Insertion de l'image
 function makeImage(imageUrl, altTxt){
     const image = document.createElement("img")
     image.setAttribute("src", imageUrl) 
@@ -25,21 +25,25 @@ function makeImage(imageUrl, altTxt){
     parent.appendChild(image)
 }
 
+// Insertion du nom
 function makeTitle(name){
     const h1 = document.querySelector("#title")
     h1.textContent = name
 }
 
+// Insertion du prix
 function makePrice(price){
     const span = document.querySelector("#price")
     span.textContent = price
 }
 
+// Insertion de la description
 function makeDescription(description){
     const p = document.querySelector("#description")
     p.textContent = description
 }
 
+// Insertion du menu déroulant couleurs
 function makeColors(colors){
     const select = document.querySelector("#colors")
         colors.forEach((colors) => {
@@ -50,6 +54,7 @@ function makeColors(colors){
     })  
 }
 
+//Evenement obligeant le consommateur à choisir une couleur et une quantité
 document.getElementById("addToCart").addEventListener("click", function () {
     let selectedColor = document.getElementById("colors").value
     if (selectedColor == '') {
@@ -73,6 +78,7 @@ document.getElementById("addToCart").addEventListener("click", function () {
 
 })
 
+//Mise à jour du localSorage avec les options couleurs, quantité et id
 function addProductToCart(product){
     let localCart = [];
     if(localStorage.getItem('cart')){
